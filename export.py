@@ -34,15 +34,15 @@ for i in range(NUMBER_OF_OUTPUTS):
 print('Output Tensor names: ', output_node_names)
 
 
-sess = K.get_session()
-try:
-    frozen_graph = graph_util.convert_variables_to_constants(sess, sess.graph.as_graph_def(), output_node_names)    
-    graph_io.write_graph(frozen_graph, OUTPUT_FOLDER, OUTPUT_GRAPH, as_text=False)
-    print(f'Frozen graph ready for inference/serving at {OUTPUT_FOLDER}/{OUTPUT_GRAPH}')
-except:
-    print('Error Occured')
+with K.get_session() as sess:
+    try:
+        frozen_graph = graph_util.convert_variables_to_constants(sess, sess.graph.as_graph_def(), output_node_names)    
+        graph_io.write_graph(frozen_graph, OUTPUT_FOLDER, OUTPUT_GRAPH, as_text=False)
+        print(f'Frozen graph ready for inference/serving at {OUTPUT_FOLDER}/{OUTPUT_GRAPH}')
+    except:
+        print('Error Occured')
 
-
+tf.reset_default_graph()
 
 builder = tf.saved_model.builder.SavedModelBuilder(OUTPUT_SERVABLE_FOLDER)
 
@@ -72,4 +72,3 @@ with tf.Session(graph=tf.Graph()) as sess:
         print(sigs['serving_default'])
     except:
         print('Error Occured, please checked frozen graph')
-
